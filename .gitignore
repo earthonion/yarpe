@@ -8,3 +8,5 @@ renpy-7.4.0-sdk
 G
 rp-osx
 /.DS_Store
+__pycache__
+/gadgets
