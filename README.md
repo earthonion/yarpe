@@ -2,9 +2,13 @@
 
 Yet another Ren'Py PlayStation exploit
 
+> [!IMPORTANT]
+> This exploit is userland exploit. Don't expect homebrew enabler(HEN) level of access.
+
 ## Supported games
 
 - A YEAR OF SPRINGS PS4 (CUSA30428)
+- Arcade Spirits: The New Challengers PS4 (CUSA32097)
 
 ## How to use
 
