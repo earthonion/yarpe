@@ -112,7 +112,7 @@ EXEC_OFFSETS = {
         },
         "PS5": {
             "func_repr": 0x4015C0,
-            "strcmp": 0xCFFEB0,
+            "strcmp": 0xB96F28,
         },
     },
 }
