@@ -89,8 +89,8 @@ LIBC_OFFSETS = {
             "strerror": 0x37000,
         },
         "PS5": {
-            "sceKernelGetModuleInfoFromAddr": 0xCC950,
-            "gettimeofday": 0xCC770,
+            "sceKernelGetModuleInfoFromAddr": 0x113C08,
+            "gettimeofday": 0x113B18,
             "strcmp": 0x392B0,
             "__error": 0xCC5A0,
             "strerror": 0x73520,
