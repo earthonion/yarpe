@@ -97,9 +97,9 @@ class ROPChain(object):
             self.push_value(r9)
         else:
             self.push_gadget("pop r14; pop r15; ret")
-            self.push_value(r9)                          # → r14
-            self.push_gadget("pop r14; pop r15; ret")    # → r15 (trampoline for call cleanup)
-            self.push_gadget("mov r9, r14; call r15")    # ret → executes mov r9,r14; call r15
+            self.push_value(r9)                          # -> r14
+            self.push_gadget("pop r14; pop r15; ret")    # -> r15 (trampoline for call cleanup)
+            self.push_gadget("mov r9, r14; call r15")    # executes mov r9,r14; call r15
             self.push_value(0)                           # dummy eaten by pop r15 in trampoline
         if self.sc.platform == "ps5":
             self.push_value(self.sc.syscall_addr)
@@ -124,9 +124,9 @@ class ROPChain(object):
             self.push_value(r9)
         else:
             self.push_gadget("pop r14; pop r15; ret")
-            self.push_value(r9)                          # → r14
-            self.push_gadget("pop r14; pop r15; ret")    # → r15 (trampoline for call cleanup)
-            self.push_gadget("mov r9, r14; call r15")    # ret → executes mov r9,r14; call r15
+            self.push_value(r9)                          # -> r14
+            self.push_gadget("pop r14; pop r15; ret")    # -> r15 (trampoline for call cleanup)
+            self.push_gadget("mov r9, r14; call r15")    # executes mov r9,r14; call r15
             self.push_value(0)                           # dummy eaten by pop r15 in trampoline
         self.push_value(addr)
 
