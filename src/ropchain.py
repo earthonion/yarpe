@@ -95,7 +95,7 @@ class ROPChain(object):
         if CONSOLE_KIND == "PS4":
             self.push_gadget("pop r9; ret")
             self.push_value(r9)
-        else:
+        elif r9 != 0:
             self.push_gadget("pop r14; pop r15; ret")
             self.push_value(r9)                          # -> r14
             self.push_gadget("pop r14; pop r15; ret")    # -> r15 (trampoline for call cleanup)
@@ -122,7 +122,7 @@ class ROPChain(object):
         if CONSOLE_KIND == "PS4":
             self.push_gadget("pop r9; ret")
             self.push_value(r9)
-        else:
+        elif r9 != 0:
             self.push_gadget("pop r14; pop r15; ret")
             self.push_value(r9)                          # -> r14
             self.push_gadget("pop r14; pop r15; ret")    # -> r15 (trampoline for call cleanup)
@@ -165,6 +165,10 @@ class Executable(object):
         self.sc = sc
         self.chain = ROPChain(sc, size)
 
+        if CONSOLE_KIND == "PS5":
+            self.r14_save_buf = alloc(8)
+            self.r14_save_addr = get_ref_addr(self.r14_save_buf)
+
         CONTEXT_SZ = 0x210
 
         # allocate the objects we need, so they can be used/reused by call()
@@ -205,6 +209,15 @@ class Executable(object):
     def setup_front_chain(self):
         self.chain.push_value(0)
 
+        if CONSOLE_KIND == "PS5":
+            # save r14 to buffer (r14/r15 are callee-saved, trampoline clobbers them)
+            self.chain.push_gadget("mov rdx, r14; pop rbx; pop r14; ret")
+            self.chain.push_value(0)  # dummy for pop rbx
+            self.chain.push_value(0)  # dummy for pop r14
+            self.chain.push_gadget("pop rcx; ret")
+            self.chain.push_value(self.r14_save_addr)
+            self.chain.push_gadget("mov [rcx], rdx; ret")
+
         # add bunch of padding to align the stack
         for _ in range(16):
             self.setup_padding_chain()
@@ -232,6 +245,21 @@ class Executable(object):
         self.chain.push_get_errno()
 
     def setup_back_chain(self):
+        if CONSOLE_KIND == "PS5":
+            # restore r14 by self-patching the chain:
+            # read saved r14 from buffer, write it into the pop r14 slot below
+            self.chain.push_gadget("pop rax; ret")
+            self.chain.push_value(self.r14_save_addr)
+            self.chain.push_gadget("mov rax, [rax]; ret")
+            self.chain.push_gadget("pop rsi; ret")
+            # rsi = address of the r14 value slot (3 slots ahead: this, mov [rsi], pop r14, SLOT)
+            r14_slot_addr = self.chain.addr + self.chain.index + 3 * 8
+            self.chain.push_value(r14_slot_addr)
+            self.chain.push_gadget("mov [rsi], rax; ret")
+            self.chain.push_gadget("pop r14; pop r15; ret")
+            self.chain.push_value(0)  # patched at runtime with saved r14
+            self.chain.push_value(0)  # r15 = 0 (best we can do)
+
         self.chain.push_gadget("pop r8; ret")
         self.chain.push_value(addrof(None) + 0x7D)
         self.chain.push_gadget("pop rcx; ret")

