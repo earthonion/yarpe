@@ -1130,6 +1130,37 @@ GPU_WRITE = 0x20
 
 LIBKERNEL_HANDLE = 0x2001
 
+# sceKernelDlsym offsets in libkernel, per firmware (from Y2JB)
+DLSYM_OFFSETS = {
+    "4.03": 0x317D0,
+    "4.50": 0x317D0,
+    "4.51": 0x317D0,
+    "5.00": 0x32160,
+    "5.02": 0x32160,
+    "5.10": 0x32160,
+    "5.50": 0x32230,
+    "6.00": 0x330A0,
+    "6.02": 0x330A0,
+    "6.50": 0x33110,
+    "7.00": 0x33E90,
+    "7.01": 0x33E90,
+    "7.20": 0x33ED0,
+    "7.40": 0x33ED0,
+    "7.60": 0x33ED0,
+    "7.61": 0x33ED0,
+    "8.00": 0x342E0,
+    "8.20": 0x342E0,
+    "8.40": 0x342E0,
+    "8.60": 0x342E0,
+    "9.00": 0x350E0,
+    "9.05": 0x350E0,
+    "9.20": 0x350E0,
+    "9.40": 0x350E0,
+    "9.60": 0x350E0,
+    "10.00": 0x349C0,
+    "10.01": 0x349C0,
+}
+
 # max number of requests that can be created/polled/canceled/deleted/waited
 MAX_AIO_IDS = 0x80
 
@@ -2806,14 +2837,31 @@ def dangerous_virt_to_phys(virt_addr, cr3=kernel.kernel_cr3_addr):
     return cpu_walk_pt(cr3, virt_addr)
 
 
+def _get_dlsym_func():
+    fw = sc.version
+    if fw not in DLSYM_OFFSETS:
+        raise Exception("sceKernelDlsym offset not known for firmware %s" % fw)
+    return sc.make_function_if_needed(
+        "sceKernelDlsym", sc.libkernel_addr + DLSYM_OFFSETS[fw]
+    )
+
+
 def dangerous_dlsym(handle, symbol):
     out_buf = alloc(8)
 
-    if u64_to_i64(sc.syscalls.dlsym(handle, symbol, out_buf)) == -1:
-        raise Exception(
-            "dlsym error: %d\n%s"
-            % (sc.syscalls.dlsym.errno, sc.syscalls.dlsym.get_error_string())
-        )
+    if sc.platform == "ps5":
+        dlsym_func = _get_dlsym_func()
+        if u64_to_i64(dlsym_func(handle, symbol, out_buf)) == -1:
+            raise Exception(
+                "dlsym error: %d\n%s"
+                % (dlsym_func.errno, dlsym_func.get_error_string())
+            )
+    else:
+        if u64_to_i64(sc.syscalls.dlsym(handle, symbol, out_buf)) == -1:
+            raise Exception(
+                "dlsym error: %d\n%s"
+                % (sc.syscalls.dlsym.errno, sc.syscalls.dlsym.get_error_string())
+            )
 
     return struct.unpack("<Q", out_buf[0:8])[0]
 
