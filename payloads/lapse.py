@@ -1062,8 +1062,10 @@ SYSCALL["kexec"] = 0x295
 
 LIBC_OFFSETS["A YEAR OF SPRINGS"]["PS4"]["setjmp"] = 0xB07E0
 LIBC_OFFSETS["Arcade Spirits: The New Challengers"]["PS4"]["setjmp"] = 0xB07E0
+LIBC_OFFSETS["Arcade Spirits: The New Challengers"]["PS5"]["setjmp"] = 0x58F80
 LIBC_OFFSETS["A YEAR OF SPRINGS"]["PS4"]["longjmp"] = 0xB0830
 LIBC_OFFSETS["Arcade Spirits: The New Challengers"]["PS4"]["longjmp"] = 0xB0830
+LIBC_OFFSETS["Arcade Spirits: The New Challengers"]["PS5"]["longjmp"] = 0x58FD0
 
 
 # sys/socket.h
