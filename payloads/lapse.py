@@ -1045,6 +1045,7 @@ SYSCALL["mmap"] = 477
 SYSCALL["cpuset_getaffinity"] = 0x1E7
 SYSCALL["cpuset_setaffinity"] = 0x1E8
 SYSCALL["jitshm_create"] = 0x215
+SYSCALL["jitshm_alias"] = 0x216
 SYSCALL["evf_create"] = 0x21A
 SYSCALL["evf_delete"] = 0x21B
 SYSCALL["evf_set"] = 0x220
