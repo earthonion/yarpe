@@ -3881,16 +3881,20 @@ def post_exploitation_ps5():
     debug_log("finding additional offsets...")
     find_additional_offsets()
 
-    debug_log("creating GPU object...")
-    gpu = GPU()
-
-    major_version = int(sc.version.split(".")[0])
-    if major_version >= 7:
-        debug_log("applying patches to kernel data (with GPU DMA method)")
-        apply_patches_to_kernel_data(gpu)
-    else:
+    if sc.platform == "ps5":
         debug_log("applying patches to kernel data")
         apply_patches_to_kernel_data(kernel)
+    else:
+        debug_log("creating GPU object...")
+        gpu = GPU()
+
+        major_version = int(sc.version.split(".")[0])
+        if major_version >= 7:
+            debug_log("applying patches to kernel data (with GPU DMA method)")
+            apply_patches_to_kernel_data(gpu)
+        else:
+            debug_log("applying patches to kernel data")
+            apply_patches_to_kernel_data(kernel)
 
 
 def kexploit():
