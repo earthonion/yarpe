@@ -2848,10 +2848,12 @@ def _get_dlsym_func():
 
 
 def dangerous_dlsym(handle, symbol):
+    debug_log("dangerous_dlsym(0x%x, %s)" % (handle, symbol))
     out_buf = alloc(8)
 
     if sc.platform == "ps5":
         dlsym_func = _get_dlsym_func()
+        debug_log("  calling sceKernelDlsym at 0x%x" % dlsym_func.func_addr)
         if u64_to_i64(dlsym_func(handle, symbol, out_buf)) == -1:
             raise Exception(
                 "dlsym error: %d\n%s"
@@ -3869,13 +3871,17 @@ def post_exploitation_ps5():
 
         debug_log("debug menu enabled")
 
+    debug_log("getting additional kernel addresses...")
     get_additional_kernel_address()
 
     # patch current process creds
+    debug_log("escalating curproc...")
     escalate_curproc()
 
+    debug_log("finding additional offsets...")
     find_additional_offsets()
 
+    debug_log("creating GPU object...")
     gpu = GPU()
 
     major_version = int(sc.version.split(".")[0])
