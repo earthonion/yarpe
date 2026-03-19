@@ -182,7 +182,7 @@ def poc():
             try:
                 if payload_log:
                     write_to_socket(client_sock, "".join(payload_log).encode("utf-8"))
-            except:
+            except Exception:
                 pass
             payload_log[:] = []
             SHARED_VARS.pop("client_sock", None)
