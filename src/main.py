@@ -164,7 +164,8 @@ def poc():
 
         log("Received payload, executing...")
 
-        close_socket(client_sock)  # close client socket
+        # Keep client_sock open so payloads can write output back
+        SHARED_VARS["client_sock"] = client_sock
 
         # Execute code, mimic file-exec by throwing local/global in same scope
         scope = dict(globals(), **locals())
@@ -174,6 +175,9 @@ def poc():
         except:
             exc_msg = traceback.format_exc()
             log_exc(exc_msg)
+        finally:
+            SHARED_VARS.pop("client_sock", None)
+            close_socket(client_sock)
 
     close_socket(s)  # close listening socket
 

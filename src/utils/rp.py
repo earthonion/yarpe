@@ -51,6 +51,16 @@ def log(*args):
     full_msg = "{nw}" + "\n".join(debug_log)
     rp.game.invoke_in_new_context(debug_char, full_msg)
 
+    from constants import SHARED_VARS
+    sock = SHARED_VARS.get("client_sock")
+    if sock is not None:
+        try:
+            from utils.tcp import write_to_socket
+            msg = " ".join([str(arg) for arg in list(args)]) + "\n"
+            write_to_socket(sock, msg.encode("utf-8"))
+        except:
+            pass
+
 
 def log_exc(string):
     global exception_occurred
