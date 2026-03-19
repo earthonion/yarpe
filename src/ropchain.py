@@ -83,7 +83,7 @@ class ROPChain(object):
         if CONSOLE_KIND == "PS4":
             self.push_gadget("pop r9; ret")
             self.push_value(r9)
-        elif r9 != 0:
+        else:
             r9_container = alloc(0x20)
             r9_container_addr = get_ref_addr(r9_container)
             r9_container[0x18:0x20] = p64a(r9)
@@ -117,7 +117,7 @@ class ROPChain(object):
         if CONSOLE_KIND == "PS4":
             self.push_gadget("pop r9; ret")
             self.push_value(r9)
-        elif r9 != 0:
+        else:
             r9_container = alloc(0x20)
             r9_container_addr = get_ref_addr(r9_container)
             r9_container[0x18:0x20] = p64a(r9)
