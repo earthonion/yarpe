@@ -164,8 +164,11 @@ def poc():
 
         log("Received payload, executing...")
 
-        # Keep client_sock open so payloads can write output back
+        # Keep client_sock open so payload log can be sent back
         SHARED_VARS["client_sock"] = client_sock
+
+        from utils.rp import payload_log
+        payload_log[:] = []
 
         # Execute code, mimic file-exec by throwing local/global in same scope
         scope = dict(globals(), **locals())
@@ -176,6 +179,12 @@ def poc():
             exc_msg = traceback.format_exc()
             log_exc(exc_msg)
         finally:
+            try:
+                if payload_log:
+                    write_to_socket(client_sock, "".join(payload_log).encode("utf-8"))
+            except:
+                pass
+            payload_log[:] = []
             SHARED_VARS.pop("client_sock", None)
             close_socket(client_sock)
 

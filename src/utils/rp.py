@@ -42,9 +42,13 @@ debug_char = rp.store.Character(
 )
 
 
+payload_log = []
+
+
 def log(*args):
     global debug_log
-    strings = " ".join([str(arg) for arg in list(args)]).split("\n")
+    msg = " ".join([str(arg) for arg in list(args)])
+    strings = msg.split("\n")
     debug_log.extend(strings)
     if len(debug_log) > 32:
         debug_log = debug_log[-32:]
@@ -52,14 +56,8 @@ def log(*args):
     rp.game.invoke_in_new_context(debug_char, full_msg)
 
     from constants import SHARED_VARS
-    sock = SHARED_VARS.get("client_sock")
-    if sock is not None:
-        try:
-            from utils.tcp import write_to_socket
-            msg = " ".join([str(arg) for arg in list(args)]) + "\n"
-            write_to_socket(sock, msg.encode("utf-8"))
-        except:
-            pass
+    if SHARED_VARS.get("client_sock") is not None:
+        payload_log.append(msg + "\n")
 
 
 def log_exc(string):
