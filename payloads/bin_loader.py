@@ -21,8 +21,10 @@ from constants import SYSCALL, LIBC_OFFSETS, SHARED_VARS
 
 LIBC_OFFSETS["A YEAR OF SPRINGS"]["PS4"]["Thrd_create"] = 0x4D150
 LIBC_OFFSETS["Arcade Spirits: The New Challengers"]["PS4"]["Thrd_create"] = 0x4D150
+LIBC_OFFSETS["One Night Stand"]["PS4"]["Thrd_create"] = 0x573F0
 LIBC_OFFSETS["A YEAR OF SPRINGS"]["PS4"]["Thrd_join"] = 0x4CF50
 LIBC_OFFSETS["Arcade Spirits: The New Challengers"]["PS4"]["Thrd_join"] = 0x4CF50
+LIBC_OFFSETS["One Night Stand"]["PS4"]["Thrd_join"] = 0x57260
 
 SYSCALL["mmap"] = 477
 SYSCALL["munmap"] = 0x49

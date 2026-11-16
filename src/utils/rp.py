@@ -48,11 +48,20 @@ payload_log = []
 def log(*args):
     global debug_log
     msg = " ".join([str(arg) for arg in list(args)])
-    strings = msg.split("\n")
+    wait = False
+    if rp.config.name == "One Night Stand":
+        wait = msg.endswith("{w}")
+        display_msg = msg[:-3] if wait else msg
+        # escape brackets to avoid built-in renpy exceptions
+        strings = display_msg.replace("[", "[[").replace("{", "{{").split("\n")
+    else:
+        strings = msg.split("\n")
     debug_log.extend(strings)
     if len(debug_log) > 32:
         debug_log = debug_log[-32:]
     full_msg = "{nw}" + "\n".join(debug_log)
+    if wait:
+        full_msg += "{w}"
     rp.game.invoke_in_new_context(debug_char, full_msg)
 
     from constants import SHARED_VARS
@@ -62,6 +71,9 @@ def log(*args):
 
 def log_exc(string):
     global exception_occurred
-    log("{b}[EXCEPTION] " + string + "{/b}")
+    if rp.config.name == "One Night Stand":
+        log("EXCEPTION: " + string)
+    else:
+        log("{b}[EXCEPTION] " + string + "{/b}")
     exception_occurred = True
     log("An error occurred! Press X(or O) to continue.{w}")

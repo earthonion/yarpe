@@ -1,4 +1,26 @@
 GADGET_OFFSETS = {
+    "One Night Stand": {
+        "PS4": {
+            # exec
+            "pop rsp; ret": 0x39CCC,
+            "pop rax; ret": 0x16A95,
+            "pop rcx; ret": 0x9E92E,
+            "pop rdx; ret": 0x4FCD4,
+            "pop rsi; ret": 0x9FBC1,
+            "pop rdi; ret": 0x6AFCD,
+            "pop r8; ret": 0x5B0562,
+            "pop r9; ret": 0x43FCA5,
+            "mov [rsi], rax; ret": 0x16417F,
+            "mov rsp, rbp; pop rbp; ret": 0x5A2874,
+            "push rbp; mov rbp, rsp; xor esi, esi; call [rdi + 0x130]": 0x18BB30,
+            "add [r8 - 0x7d], rcx; ret": 0x2383B9,
+            "ret": 0x5A2875,
+            "mov [rcx], rdx; ret": 0x1D149F,
+            # libc
+            "mov rsp, [rdi + 0x38]; pop rdi; ret": 0x338E2,
+            "mov rax, [rax]; ret": 0x2DE0A,
+        }
+    },
     "A YEAR OF SPRINGS": {
         "PS4": {
             # exec
@@ -71,6 +93,15 @@ LIBC_GADGETS = [
 ]
 
 LIBC_OFFSETS = {
+    "One Night Stand": {
+        "PS4": {
+            "sceKernelGetModuleInfoFromAddr": 0x203FC8,
+            "gettimeofday": 0x204060,
+            "strcmp": 0xB5930,
+            "__error": 0x168,
+            "strerror": 0x42540,
+        }
+    },
     "A YEAR OF SPRINGS": {
         "PS4": {
             "sceKernelGetModuleInfoFromAddr": 0x113908,
@@ -99,6 +130,12 @@ LIBC_OFFSETS = {
 }
 
 EXEC_OFFSETS = {
+    "One Night Stand": {
+        "PS4": {
+            "func_repr": 0x1E3440,
+            "strcmp": 0xA5AFF8,
+        }
+    },
     "A YEAR OF SPRINGS": {
         "PS4": {
             "func_repr": 0x3B6D70,

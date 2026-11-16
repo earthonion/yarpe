@@ -25,6 +25,7 @@ Yet another Ren'Py PlayStation exploit
 
 - A YEAR OF SPRINGS PS4 (CUSA30428, CUSA30429, CUSA30430, CUSA30431)
 - Arcade Spirits: The New Challengers PS4 (CUSA32096, CUSA32097)
+- One Night Stand PS4 (CUSA15849)
 
 ## How to use
 
@@ -118,6 +119,7 @@ Thanks https://github.com/shahrilnet/remote_lua_loader/blob/main/SETUP.md for th
 4. Copy the generated save file to your console using the above method.
 - Use `payloads/force_persistent.py` to load the save file automatically on game start.
 - To ignore the auto loader and go straight to socket listening part, hold triangle button while loading the save.
+- If controller mapping is unavailable, configured autoload runs and Triangle cannot skip it.
 
 
 ## Python API
@@ -284,6 +286,7 @@ Thanks https://github.com/shahrilnet/remote_lua_loader/blob/main/SETUP.md for th
 - [@Gezine](https://github.com/Gezine) - For giving me some important clues
 - [remote_lua_loader](https://github.com/shahrilnet/remote_lua_loader) - Being the reference for things like syscall
 - [unsafe-python](https://github.com/DavidBuchanan314/unsafe-python) - Inspiration for unsafe memory access in Python
+- [@ChampionLeake](https://github.com/ChampionLeake) - "One Night Stand" Ren'py port
 - And anyone else who helped me!
 
 ## Disclaimer

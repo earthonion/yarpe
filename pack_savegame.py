@@ -46,7 +46,7 @@ def scan_src_directory():
 
     for filename in list_files(PREFIX):
         mod_time = int(os.path.getmtime(filename))
-        rel_path = "/saves/yarpe/" + filename[len(PREFIX) + 1 :]
+        rel_path = "/saves/yarpe/" + filename[len(PREFIX) + 1 :].replace("\\", "/")
 
         files.append((rel_path, mod_time))
 
@@ -60,7 +60,7 @@ def scan_yarpe_autoload_directory():
 
     for filename in list_files(PREFIX):
         mod_time = int(os.path.getmtime(filename))
-        rel_path = "/saves/yarpe_autoload/" + filename[len(PREFIX) + 1 :]
+        rel_path = "/saves/yarpe_autoload/" + filename[len(PREFIX) + 1 :].replace("\\", "/")
 
         files.append((rel_path, mod_time))
 

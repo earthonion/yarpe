@@ -41,21 +41,35 @@ def poc():
 
     auto_load_path = None
     run_auto_load = True
+    controller_ready = False
     for path in AUTO_LOAD_PATHS:
         if file_exists(path) or os.path.exists(path):
             auto_load_path = path
             break
 
-    c = pygame_sdl2.controller.Controller(0)
-    c.init()
-    run_auto_load = c.get_button(CONTROLLER_BUTTON_Y) == 0
-    c.quit()
+    if auto_load_path is not None:
+        c = None
+        try:
+            c = pygame_sdl2.controller.Controller(0)
+            c.init()
+            run_auto_load = c.get_button(CONTROLLER_BUTTON_Y) == 0
+            controller_ready = True
+        except Exception as exc:
+            log("[!] Controller unavailable; running configured autoload: %s" % exc)
+        finally:
+            if c is not None:
+                try:
+                    c.quit()
+                except Exception:
+                    pass
 
     if run_auto_load and auto_load_path is not None:
         log("[*] Found autoload file at %s" % auto_load_path)
-        log(
-            "[*] Will execute autoload. You can skip autoload by holding the triangle button when loading the save."
-        )
+        log("[*] Will execute autoload.")
+        if controller_ready:
+            log("[*] You can skip autoload by holding the triangle button when loading the save.")
+        else:
+            log("[!] Autoload skip is unavailable without controller mapping.")
         try:
             SHARED_VARS["AUTO_LOAD"] = True
             loaded_from_save = auto_load_path.startswith("/saves/")
